@@ -33,7 +33,7 @@ module VkontakteApi
         token = options.delete(:token)
         
         Faraday.new(url, VkontakteApi.faraday_options) do |builder|
-          builder.request :oauth2, token, token_type: 'param' unless token.nil?
+          builder.request :oauth2, token, token_type: 'bearer' unless token.nil?
           builder.request :multipart
           builder.request :url_encoded
           builder.request :retry, VkontakteApi.max_retries
