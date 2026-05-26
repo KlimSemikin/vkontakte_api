@@ -14,7 +14,7 @@ module VkontakteApi
     # @param [Hash] env Request data.
     def call(env)
       if VkontakteApi.log_requests?
-        @logger.debug "#{env[:method].to_s.upcase} #{env[:url].to_s}"
+        @logger.debug "#{env[:method].to_s.upcase} #{env[:url]}"
         @logger.debug "body: #{env[:body].inspect}" unless env[:method] == :get
       end
 
@@ -24,13 +24,15 @@ module VkontakteApi
     # Logs the response (successful or not) if needed.
     # @param [Hash] env Response data.
     def on_complete(env)
-      if env[:body].nil? || env[:body].error?
+      if env[:body].is_a?(String)
+        @logger.warn env if VkontakteApi.log_errors?
+      elsif env[:body].error?
         @logger.warn env[:raw_body] if VkontakteApi.log_errors?
-      else
-        @logger.debug env[:raw_body] if VkontakteApi.log_responses?
+      elsif VkontakteApi.log_responses?
+        @logger.debug env[:raw_body]
       end
     end
   end
-  
+
   Faraday::Response.register_middleware vk_logger: Logger
 end
